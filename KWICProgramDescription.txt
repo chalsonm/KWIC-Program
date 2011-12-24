@@ -1,0 +1,28 @@
+﻿Keyword In Context (KWIC) Program Description
+Michael Chalson
+
+
+The task for this coding exercise was to implement a Keyword In Context (KWIC) program.  The main functionalities of the program are 1) accept the file name of an ASCII text file, 2) parse the entire text file, 3) generate an in-memory index of the words in the file, 4) prompt the user for a keyword, and 5) display to the screen a list of at most 10 instances of the keyword from the file.  For each instance of the keyword the program will display the line number of the instance and the context of the instance, comprised of the 30 characters immediately before and after the keyword instance, as well as the keyword itself.  The program can be run from any location, provided that the path to the KwicApp.jar file and the input text file can be resolved.  To run the program from a windows or linux terminal, type the command: 
+java -jar /[path to jar file]/KwicApp.jar /[path to input text file]/filename.txt
+The program can be run with or without an input argument.  If no input argument is given, the program will begin by prompting the user for the name of a text file.
+
+
+The program was implemented in Java and was developed on the eclipse IDE.  The key software elements that implement the search and index functionality are specialized implementations of the HashMap and HashSet generic classes from the Java Collections Framework.  The HashMap is used to implement the main index and the HashSet is used to implement a list of “dead words,” which will be described later.  
+
+
+The HashMap allows for the efficient storage and retrieval of the unique keywords and context strings through a key-value reference scheme.  The unique keywords are treated as the key arguments.  The value argument for each key is an instance of a specialized class called KeywordContainer.  The KeywordContainer class has two member fields, an integer called wordCount and an ArrayList implementation called detailList.  wordCount keeps track of the number of instances of the keyword that have been stored.  detailList is an instance of the ArrayList generic class from the Java Collections Framework.  Each element of detailList is an instance of a specialized class called KeywordData.  The KeywordData class has two simple fields, an integer called lineNumber and a String called contextStr.  lineNumber and contextStr store the line number and context data, respectively, for the given instance of the keyword.  
+
+
+The “dead words” HashSet is a separate data structure from the main index that is intended to speed up the process of building the index by keeping track of keywords that have been encountered 10 or more times as the indexing process proceeds.  The purpose of using a “dead word” set is to allow a more efficient mechanism to check if an encountered keyword has to have a new instance added to the index, which would necessitate the processing to create the context data, the creation of a new KeywordData object, the addition of the new KeywordData object to an existing or new KeywordContainer object, and the addition of the new or updated KeywordContainer object to the main index HashMap.  Checking the dead list for the existence of a keyword will be faster than checking the main index for the existence of the keyword, which would have to be followed by checking the number of instances that have already been stored for that keyword.
+
+
+In addition to the main data structures that implement the index, some of the other key software elements are a simple command line user interface and an implementation of the Java Runnable interface to allow the file indexing process to be performed on a separate thread from the user interface processing.  These two elements should provide for a high quality user experience when running the program.  The entire program was designed in such a way to allow for easy enhancement if additional functionality is to be added.  For instance, if the designer wanted to add the capability to index and search multiple files within one execution of the program, very few code changes would be required.
+
+
+Several implementation details that have little impact on the software design but may have some impact on the user experience are as follows:
+1. If the line containing the keyword has fewer than 30 characters on either side of the keyword, the program attempts to extend the context window onto the previous or next line, as appropriate, but does not attempt to continue farther than one line in either direction.  If the context window does include text from adjacent lines, a single white space character is inserted between the characters from different lines.  If there are not enough text characters available, within the limits just described, to complete the context window, it will be padded with white space characters
+2. A word that contains a single apostrophe, e.g. can’t, is treated as a single word
+3. A word that is hyphenated, e.g. re-use, is treated as two words, “re” and “use”
+4. Words are defined as consecutive instances of the 26 letters in the English alphabet (upper or lower case), bounded on both sides by any character other than one of the letters of the alphabet, and possibly interrupted by a single apostrophe
+5. A partial word that ends with a hyphen and continues on the next line is treated as two separate words, separated by the hyphen
+6. Keywords are stored in the index without case-sensitivity, i.e. “the” is considered the same keyword as “The”
